@@ -14,46 +14,57 @@ def warnUser(message: str) -> None:
     warning(message)
     errorCount += 1
 
-def get_value_input() -> list:
+def get_value_input(idCurrent) -> list:
     userNameInput = input("Enter product name: ")
     userQuantityInput = input("Enter a stock quantity: ")
     if userNameInput == "quit" or userQuantityInput == "quit":
-        return ["quit", int(0)]
+        return [0, "quit", int(0)]
+    if "," in userNameInput:
+        warnUser(f"Name cannot have a comma ',' in it, try again!")
+        return[0, str(""), int(0)]
     try:
         addedInventory = int(userQuantityInput)
-        if addedInventory < 0:
+        if addedInventory <= 0:
             warnUser("Negative number not accepted, try again!")
-            return [str(""), int(0)]
+            return [int(idCurrent+1), str(""), int(0)]
         else:
-            return [str(userNameInput), int(addedInventory)]
+            return [0, str(userNameInput), int(addedInventory)]
     except:
-        warnUser(f"Input of type {str(type(userInput))} not accepted, try again!")
-        return [str(""), int(0)]
+        warnUser(f"Input of type {str(type(userQuantityInput))} not accepted, try again!")
+        return [0, str(""), int(0)]
 
-def process_delivery(current_total: int, new_value: int) -> int:
-    new_total = int(current_total) + int(new_value)
+def process_delivery(current_total, new_value: int) -> int:
+    new_total = int(sum(current_total)) + int(new_value)
     return new_total
 
 def calculate_tax(amount: int) -> float:
     return (float(0.1) * amount)
 
-def generate_report(total_units: int, failed_attempts: int) -> None:
+def generate_report(total_units, failed_attempts: int) -> None:
     print(f"Total Units Processed: {str(total_units)}")
     print(f"Number of Failed/Rejected Entries: {str(failed_attempts)}")
 
 inventory = load_inventory()
+newInventory = []
+print("Current Orders:")
+print("")
+print(inventory)
 
 userData = ""
 while userData != "quit":
-    userData = get_value_input()
-    if userData[0] == "quit":
+    currentId = max([i[0] for i in inventory])
+    userData = get_value_input(inventory)
+    if userData[1] == "quit":
         print("Goodbye!")
         break
-    if int(userData[1]) > 0:
-        inventory = process_delivery(inventory, int(userData[1]))
-        print(f"Tax for delivery amount {int(userData[1])}: {calculate_tax(int(userData[1]))}")
+    if int(userData[2]) > 0:
+        # inventory = process_delivery([i[2] for i in inventory if len(i)>2 and i[1]==userData[1]], int(userData[2]))
+        print(f"Tax for delivery amount {int(userData[2])}: {calculate_tax(int(userData[2]))}")
+        newInventory.append(userData)
+        print("New Order Added:")
+        print(str(userData))
     # it doesn't make sense that the program should be blocked if the inventory is more than 500, especially since history is now persistent. if persistent inventory is forever above 500, the program will always quit after 1 user prompt.
     # if inventory > 500:
     #     print("Inventory has overstocked!")
     #     break
-generate_report(inventory, errorCount)
+generate_report(inventory+newInventory, errorCount)
