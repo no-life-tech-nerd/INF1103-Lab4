@@ -67,6 +67,10 @@ while userData != "quit":
         currentId = max([i[0] for i in inventory])
     except ValueError:
         currentId = 1000
+    try:
+        currentId = max([i[0] for i in newInventory])
+    except:
+        currentId = currentId
     userData = get_value_input(currentId)
     if userData[1] == "quit":
         print("Goodbye!")
