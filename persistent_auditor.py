@@ -9,6 +9,10 @@ def load_inventory() -> list[list]:
     with open(dataFile, 'r') as file:
         return [line.strip().split(',') for line in file]
 
+def save_inventory(newItem: list) -> None:
+    with open(dataFIle, 'a') as file:
+        file.write(','.join(newItem))
+
 def warnUser(message: str) -> None:
     global errorCount
     warning(message)
@@ -63,6 +67,8 @@ while userData != "quit":
         newInventory.append(userData)
         print("New Order Added:")
         print(str(userData))
+        save_inventory(userData)
+        print("Order successfully saved to inventory.txt")
     # it doesn't make sense that the program should be blocked if the inventory is more than 500, especially since history is now persistent. if persistent inventory is forever above 500, the program will always quit after 1 user prompt.
     # if inventory > 500:
     #     print("Inventory has overstocked!")
